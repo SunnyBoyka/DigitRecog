@@ -1,4 +1,9 @@
+cv2
+PIL
 numpy
+pyyaml
+pickle
 sklearn
 logging
 argparse
+matplotlib
