@@ -17,7 +17,10 @@ warnings.filterwarnings('ignore')
 
 
 class Preprocess:
+    """Preprocess: Class for processing the dataset into features and labels"""
+
     def __init__(self):
+        """initialises the config variables and load datasets"""
 
         with open('./_config.yml', 'r') as outfile:
             try:
@@ -35,6 +38,7 @@ class Preprocess:
 
 
     def processing(self):
+        """process the numpy matrix into features and labels; Into training and testing sets"""
 
         Y = np.array([])
         logging.debug('[.] Converting label matrix into one-digit form ... e.g. [0. 0. 1. 0. 0. 0. 0. 0. 0.] -> 2.')
@@ -66,10 +70,16 @@ class Preprocess:
 
 
 class Model:
+    """Model: Class for training, testing, and prediction of input by deep learning model"""
+
     def __init__(self):
+        """initialising -> null variables"""
         pass
 
+
     def model(self):
+        """dataset called and trained the model with deep learning algorithms"""
+
         datadict = Preprocess().processing()
 
         logging.info('[.] Forming deep learning model ...')
@@ -91,6 +101,7 @@ class Model:
 
 
     def prediction(self, filepath):
+        """predicting the input image with already trained model in `_model`"""
 
         logging.info('[.] Image processing with PIL ...')
         logging.debug('[#] converting in mode \'1\' and shape 4096*1 ')
@@ -107,6 +118,7 @@ class Model:
 
         print(predict)
         return True
+
 
 
 if __name__=="__main__":
