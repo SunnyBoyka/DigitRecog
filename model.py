@@ -34,8 +34,8 @@ class Preprocess:
                 logger.error('[/!/] _config.yml file not found:', error)
         
         try:
-            self.Xdata = np.load('./dataset/X.npy')
-            self.Ydata = np.load('./dataset/Y.npy')
+            self.Xdata = np.load('./'+ self.yml['_dataset'] +'/X.npy')
+            self.Ydata = np.load('./'+ self.yml['_dataset'] +'/Y.npy')
         
         except FileNotFoundError:
             logger.error('[/!/] Dataset files not found in folder!')
@@ -84,7 +84,8 @@ class Model:
     def model(self):
         """dataset called and trained the model with deep learning algorithms"""
 
-        datadict = Preprocess().processing()
+        self.pre = Preprocess()
+        datadict = self.pre.processing()
 
         logging.info('[.] Forming deep learning model ...')
         logging.debug('[#] 150 iterations choosed! ')
@@ -127,16 +128,23 @@ class Model:
 
 
     def predictlive(self):
+        """Getting the image from webcam and then predicting it based on already trained model"""
+        
         camera = cv2.VideoCapture(0)
 
+        logger.warning('[!] Webcam started ...')
         r, img = camera.read()
         time.sleep(1)
         r, img1 = camera.read()
 
+        logging.info('[.] Photo clicked and saved.')
         cv2.imwrite('./signimage.png', img1)
         self.prediction('./signimage.png')
 
         os.remove('./signimage.png')
+        logging.info('[.] Deleted the saved photo')
+
+        logging.warning('[!] Webcam dead. ')
         del camera
 
 
@@ -161,4 +169,7 @@ if __name__=="__main__":
         mod.prediction(args.predict)
 
     if args.clickP:
+        print('[*] Please form a sign-language digit in front of the webcam (at a proper bright place).')
         mod.predictlive()
+
+    print('[*] Created by {}.'.format(mod.pre.yml['_creator']))
