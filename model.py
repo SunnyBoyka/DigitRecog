@@ -1,13 +1,20 @@
 import yaml
+import pickle
 import logging
 import warnings
 import argparse
+
 import numpy as np
+
 from sklearn.model_selection import train_test_split
 from sklearn import linear_model
+from PIL import Image
+import matplotlib.pyplot as plt
+
 
 logger = logging.getLogger()
 warnings.filterwarnings('ignore')
+
 
 class Preprocess:
     def __init__(self):
@@ -69,22 +76,45 @@ class Model:
         logging.debug('[#] 150 iterations choosed! ')
 
         logreg = linear_model.LogisticRegression(random_state=42, max_iter=150)
-        logregfit = logreg.fit(datadict["X_train"].T, datadict["Y_train"].T)
+        logreg = logreg.fit(datadict["X_train"].T, datadict["Y_train"].T)
         
-        accuracy = logregfit.score(datadict["X_test"].T, datadict["Y_test"].T)
+        accuracy = logreg.score(datadict["X_test"].T, datadict["Y_test"].T)
         
-        print("Accuracy on training set: {:.4f} %".format(logregfit.score(datadict["X_train"].T, datadict["Y_train"].T)*100))
+        print("Accuracy on training set: {:.4f} %".format(logreg.score(datadict["X_train"].T, datadict["Y_train"].T)*100))
         print("Accuracy on testing set: {:.4f} %".format(accuracy*100))
 
+        logging.info('[.] Saving deep learning model ...')
+        pickle.dump(logreg, open('_model', 'wb'))
+
+        return True
+
+
+    def prediction(self, filepath):
+
+        logging.info('[.] Image processing with PIL ...')
+        logging.debug('[#] converting in mode \'1\' and shape 4096*1 ')
+
+        img = Image.open(filepath).convert('L').resize((64,64), Image.ANTIALIAS)
+        data = np.asarray(img.getdata()).reshape(1, -1)
+
+        loaded_model = pickle.load(open('_model', 'rb'))
+        predict = loaded_model.predict(data)
+
+        print(predict)
         return True
 
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='Sign Langauge Digit Classification')
-    
+
+    parser.add_argument('-path', help='Path to the image to be predicted', default='')    
     parser.add_argument('-L', '--log', help='Set the logging level', type=str, choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'])
         
     args = parser.parse_args()
     logging.basicConfig(level=args.log)
 
-    mod = Model().model()
+    mod = Model()
+    if args.path is not '':
+        mod.prediction(args.path)
+    else:
+        mod.model()
