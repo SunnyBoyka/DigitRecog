@@ -1,15 +1,19 @@
+import os
+import cv2
 import yaml
+import time
 import pickle
 import logging
 import warnings
 import argparse
 
 import numpy as np
-
-from sklearn.model_selection import train_test_split
-from sklearn import linear_model
 from PIL import Image
 import matplotlib.pyplot as plt
+
+from sklearn import linear_model
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 
 
 logger = logging.getLogger()
@@ -85,7 +89,9 @@ class Model:
         logging.info('[.] Forming deep learning model ...')
         logging.debug('[#] 150 iterations choosed! ')
 
-        logreg = linear_model.LogisticRegression(random_state=42, max_iter=150)
+        # logreg = RandomForestClassifier(n_estimators=15, random_state=42)
+        logreg = linear_model.LogisticRegression(random_state=42, max_iter=150, n_jobs=2)
+
         logreg = logreg.fit(datadict["X_train"].T, datadict["Y_train"].T)
         
         accuracy = logreg.score(datadict["X_test"].T, datadict["Y_test"].T)
@@ -120,12 +126,27 @@ class Model:
         return True
 
 
+    def predictlive(self):
+        camera = cv2.VideoCapture(0)
+
+        r, img = camera.read()
+        time.sleep(1)
+        r, img1 = camera.read()
+
+        cv2.imwrite('./signimage.png', img1)
+        self.prediction('./signimage.png')
+
+        os.remove('./signimage.png')
+        del camera
+
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='Sign Langauge Digit Classification')
 
     parser.add_argument('-t', '--train', help='Train the model', action="store_true", default=False)
     parser.add_argument('-p', '--predict', help='Path to the image to be predicted', default='')    
+    parser.add_argument('-cp', '--clickP', help='Click picture through webcam and predict', action="store_true", default=False)
+    
     parser.add_argument('-L', '--log', help='Set the logging level', type=str, choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'])
         
     args = parser.parse_args()
@@ -137,4 +158,7 @@ if __name__=="__main__":
         mod.model()
 
     if args.predict is not '':
-        mod.prediction(args.path)
+        mod.prediction(args.predict)
+
+    if args.clickP:
+        mod.predictlive()
