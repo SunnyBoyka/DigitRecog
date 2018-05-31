@@ -20,11 +20,21 @@ Accuracy on training set: 99.5434 %
 Accuracy on testing set: 73.8710 %
 ```
 
+#### Random Forest
+```console
+gavy42@jarvis:~/Sign-Language-Digits$ python3 model.py -t
+-------------Model-------------
+Accuracy on training set: 100.0000 %
+Accuracy on testing set: 73.8710 %
+
+```
+
 ## Usage
 1. Clone the repository as `git clone https://github.com/techcentaur/Sign-Language-Digits.git`.
 2. Run `pip3 install -r requirements.txt` to install the dependencies.
 3. Run `python3 model.py -t` to train the model
 > Run `python3 model.py -cp` to click the picture of sign digit from webcam, and then do the prediction.
+
 
 ### Argparse Usage
 ```console
@@ -53,6 +63,16 @@ The main and only python file is `model.py`. It has two classes.
 	- `prediction(<filepath>)`: Predicting the input image with already trained model saved in `_model`; Prints the predicted digit.
 	- ```predictlive(self)```: Getting the image from webcam and then predicting it based on already trained model, i.e., calling `prediction()` function.
 
+
+## Configuration
+Edit `_config.yml` here for changing learning model or dataset folder name.
+
+```yml
+# Dataset foldername
+_dataset: dataset
+# Model for learning
+_modeldict: {"logistic": False, "neuralnet": False, "forest": True}
+```
 
 ## About Dataset
 I got the dataset from [this](https://github.com/ardamavi/Sign-Language-Digits-Dataset) GitHub repository. Cheers to that.
