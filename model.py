@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from sklearn import linear_model
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 
 
 logger = logging.getLogger()
@@ -39,7 +40,6 @@ class Preprocess:
         
         except FileNotFoundError:
             logger.error('[/!/] Dataset files not found in folder!')
-
 
     def processing(self):
         """process the numpy matrix into features and labels; Into training and testing sets"""
@@ -78,34 +78,48 @@ class Model:
 
     def __init__(self):
         """initialising -> null variables"""
-        pass
+
+        with open('./_config.yml', 'r') as outfile:
+            try:
+                self.yml = yaml.load(outfile)
+
+            except yaml.YAMLError as error:
+                logger.error('[/!/] _config.yml file not found:', error)
+
+        self.kwargs = self.yml['_modeldict'] 
 
 
     def model(self):
         """dataset called and trained the model with deep learning algorithms"""
 
         self.pre = Preprocess()
-        datadict = self.pre.processing()
+        self.datadict = self.pre.processing()
 
         logging.info('[.] Forming deep learning model ...')
         logging.debug('[#] 150 iterations choosed! ')
 
-        # logreg = RandomForestClassifier(n_estimators=15, random_state=42)
-        logreg = linear_model.LogisticRegression(random_state=42, max_iter=150, n_jobs=2)
+        if self.kwargs['forest']:
+            model = RandomForestClassifier(n_estimators=15, random_state=42)
+        elif self.kwargs['logistic']:
+            model = LogisticRegression(random_state=42, max_iter=150)
 
-        logreg = logreg.fit(datadict["X_train"].T, datadict["Y_train"].T)
+
+        model = model.fit(self.datadict["X_train"].T, self.datadict["Y_train"].T)
         
-        accuracy = logreg.score(datadict["X_test"].T, datadict["Y_test"].T)
+        accuracy = model.score(self.datadict["X_test"].T, self.datadict["Y_test"].T)
         
         print('-------------Model-------------')
-        print("Accuracy on training set: {:.4f} %".format(logreg.score(datadict["X_train"].T, datadict["Y_train"].T)*100))
+        print("Accuracy on training set: {:.4f} %".format(model.score(self.datadict["X_train"].T, self.datadict["Y_train"].T)*100))
         print("Accuracy on testing set: {:.4f} %".format(accuracy*100))
-
+       
         logging.info('[.] Saving deep learning model ...')
-        pickle.dump(logreg, open('_model', 'wb'))
+        
+        if self.kwargs['logistic']:
+            pickle.dump(model, open('./_models/_modellogistic', 'wb'))
+        else:
+            pickle.dump(model, open('./_models/_modelforest', 'wb'))
 
         return True
-
 
     def prediction(self, filepath):
         """predicting the input image with already trained model in `_model`"""
@@ -117,7 +131,10 @@ class Model:
         data = np.asarray(img.getdata()).reshape(1, -1)
 
         try:
-            loaded_model = pickle.load(open('_model', 'rb'))
+            if self.kwargs['logistic']:
+                loaded_model = pickle.load(open('./_models/_modellogistic', 'rb'))
+            else:
+                loaded_model = pickle.load(open('./_models/_modelforest', 'rb'))
         except Exception as e:
             logging.error('[/!/] Seems like model isn\'t rained, please train the model first!')
 
@@ -154,7 +171,7 @@ if __name__=="__main__":
     parser.add_argument('-t', '--train', help='Train the model', action="store_true", default=False)
     parser.add_argument('-p', '--predict', help='Path to the image to be predicted', default='')    
     parser.add_argument('-cp', '--clickP', help='Click picture through webcam and predict', action="store_true", default=False)
-    
+
     parser.add_argument('-L', '--log', help='Set the logging level', type=str, choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'])
         
     args = parser.parse_args()
