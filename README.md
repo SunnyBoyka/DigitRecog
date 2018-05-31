@@ -6,12 +6,37 @@ Using deep learning to classify sign language digits.
 
 ## Performance
 
+#### Logistic Regression
+```console
+gavy42@jarvis:~/Sign-Language-Digits$ python3 model.py -t
+-------------Model-------------
+Accuracy on training set: 99.5434 %
+Accuracy on testing set: 73.8710 %
+
+```
+
 ## Usage
 1. Clone the repository as `git clone `.
 2. Run `pip3 install -r requirements.txt` to install the dependencies.
 3. Run `python3 model.py` to run the model
 
 ### Argparse Usage
+```console
+gavy42@jarvis:~/Sign-Language-Digits$ python3 model.py -h
+usage: model.py [-h] [-t] [-p PREDICT]
+                [-L {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
+
+Sign Langauge Digit Classification
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -t, --train           Train the model
+  -p PREDICT, --predict PREDICT
+                        Path to the image to be predicted
+  -L {DEBUG,INFO,WARNING,ERROR,CRITICAL}, --log {DEBUG,INFO,WARNING,ERROR,CRITICAL}
+                        Set the logging level
+
+```
 
 ### Functional Usage
 
