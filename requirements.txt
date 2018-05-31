@@ -4,6 +4,5 @@ numpy
 pyyaml
 pickle
 sklearn
-logging
 argparse
 matplotlib
