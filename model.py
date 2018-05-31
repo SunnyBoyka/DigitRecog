@@ -34,7 +34,7 @@ class Preprocess:
             logger.error('[/!/] Dataset files not found in folder!')
 
 
-    def flatten(self):
+    def processing(self):
 
         Y = np.array([])
         logging.debug('[.] Converting label matrix into one-digit form ... e.g. [0. 0. 1. 0. 0. 0. 0. 0. 0.] -> 2.')
@@ -70,7 +70,7 @@ class Model:
         pass
 
     def model(self):
-        datadict = Preprocess().flatten()
+        datadict = Preprocess().processing()
 
         logging.info('[.] Forming deep learning model ...')
         logging.debug('[#] 150 iterations choosed! ')
@@ -80,6 +80,7 @@ class Model:
         
         accuracy = logreg.score(datadict["X_test"].T, datadict["Y_test"].T)
         
+        print('-------------Model-------------')
         print("Accuracy on training set: {:.4f} %".format(logreg.score(datadict["X_train"].T, datadict["Y_train"].T)*100))
         print("Accuracy on testing set: {:.4f} %".format(accuracy*100))
 
@@ -97,7 +98,11 @@ class Model:
         img = Image.open(filepath).convert('L').resize((64,64), Image.ANTIALIAS)
         data = np.asarray(img.getdata()).reshape(1, -1)
 
-        loaded_model = pickle.load(open('_model', 'rb'))
+        try:
+            loaded_model = pickle.load(open('_model', 'rb'))
+        except Exception as e:
+            logging.error('[/!/] Seems like model isn\'t rained, please train the model first!')
+
         predict = loaded_model.predict(data)
 
         print(predict)
@@ -107,14 +112,17 @@ class Model:
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='Sign Langauge Digit Classification')
 
-    parser.add_argument('-path', help='Path to the image to be predicted', default='')    
+    parser.add_argument('-t', '--train', help='Train the model', action="store_true", default=False)
+    parser.add_argument('-p', '--predict', help='Path to the image to be predicted', default='')    
     parser.add_argument('-L', '--log', help='Set the logging level', type=str, choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'])
         
     args = parser.parse_args()
     logging.basicConfig(level=args.log)
 
     mod = Model()
-    if args.path is not '':
-        mod.prediction(args.path)
-    else:
+
+    if args.train:
         mod.model()
+
+    if args.predict is not '':
+        mod.prediction(args.path)
