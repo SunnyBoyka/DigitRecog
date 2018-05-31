@@ -1,6 +1,9 @@
-#about
+# About
 _name: "Sign Language Digits"
 _creator: techcentaur
 
-#dataset foldername
+# Dataset foldername
 _dataset: dataset
+
+# Model for learning
+_modeldict: {"logistic": False, "forest": True}
