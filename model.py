@@ -189,4 +189,4 @@ if __name__=="__main__":
         print('[*] Please form a sign-language digit in front of the webcam (at a proper bright place).')
         mod.predictlive()
 
-    print('[*] Created by {}.'.format(mod.pre.yml['_creator']))
+    print('[*] Created by {}.'.format(mod.yml['_creator']))
